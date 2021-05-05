@@ -1,0 +1,12 @@
+version: '3'
+services:
+    player:
+        build: player/.
+    user:
+        build: user/.
+    nginx:
+        image: nginx
+        ports:
+            - "8080:8080"
+        volumes:
+            - ./nginx.conf:/etc/nginx/nginx.conf:ro
