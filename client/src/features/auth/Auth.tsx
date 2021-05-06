@@ -23,12 +23,7 @@ export function Auth() {
     if (accessToken) {
       dispatch(setToken(accessToken));
       window.localStorage.setItem('spotify-access-token', accessToken);
-      // TODO: Set refresh token every x seconds
-      // fetch('http://127.0.0.1:8080/user', {
-      //   headers: {
-      //     'Authorization': accessToken,
-      //   }
-      // })
+      // TODO: Update auth request to get code -> Token + exchange token -> set timeout after x seconds to refresh this token
     } else {
       logOut()
     }
@@ -46,6 +41,7 @@ export function Auth() {
         }
         return acc;
       }, {});
+      console.log(currentHash)
     window.location.hash = '';
     return currentHash;
   }

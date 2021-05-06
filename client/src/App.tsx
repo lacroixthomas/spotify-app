@@ -2,6 +2,8 @@ import React from 'react';
 import logo from './logo.svg';
 import { Auth } from './features/auth/Auth';
 import { Player } from './features/player/Player';
+import { Playlist } from './features/playlist/Playlist';
+import { User } from './features/user/User';
 import './App.css';
 import { useAppSelector } from './app/hooks';
 import { selectToken } from './features/auth/authSlice';
@@ -14,31 +16,15 @@ function App() {
     <div className="App">
       <div className="Left-panel">
         <div className="Login-container">
-
-        TODO: To User Component -
-        <br/>
-        Image
-        <br/>
-        Username
-        <br />
+        {!! token && <User /> }
         <Auth />
         </div>
         <div className="Player-container">
-          Player:
-
-          Currently Playing ?
-
-          Which music
-          Which artist
-          Which kind
-
-          {token && <Player/>}          
+          {token && <Player/>}
         </div>
       </div>
       <div className="Playlist">
-        Playlist:
-
-        Listing of playlists from the user
+      {token && <Playlist/>}
       </div>
     </div>
   );

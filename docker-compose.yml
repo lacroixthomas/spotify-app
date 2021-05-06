@@ -4,6 +4,8 @@ services:
         build: player/.
     user:
         build: user/.
+    playlist:
+        build: playlist/.
     nginx:
         image: nginx
         ports:

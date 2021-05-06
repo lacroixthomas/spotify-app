@@ -13,9 +13,9 @@ import (
 
 // User is a simplified structure of a user
 type User struct {
-	Name  string `json:'name'`
-	ID    string `json:'id'`
-	Image string `json:'image'`
+	Name  string `json:"name"`
+	ID    string `json:"id"`
+	Image string `json:"image"`
 }
 
 // userHandler is the handler to get the current user info
@@ -26,6 +26,7 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 	client := spotify.Authenticator{}.NewClient(token)
 	user, err := client.CurrentUser()
 	if err != nil {
+		log.Println(err)
 		return
 	}
 
@@ -76,7 +77,7 @@ func main() {
 
 	corsWrapper := cors.New(cors.Options{
 		AllowedMethods: []string{"GET", "POST"},
-		AllowedHeaders: []string{"Content-Type", "Origin", "Accept", "*"},
+		AllowedHeaders: []string{"Content-Type", "Origin", "Content-Type", "Accept", "*"},
 	})
 
 	log.Fatal(http.ListenAndServe(":8080", corsWrapper.Handler(r)))

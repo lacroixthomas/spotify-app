@@ -11,23 +11,23 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func userHandler(w http.ResponseWriter, r *http.Request) {
+func playlistHandler(w http.ResponseWriter, r *http.Request) {
 	bearer := r.Header.Get("Authorization")
 	token := new(oauth2.Token)
 	token.AccessToken = bearer
 	client := spotify.Authenticator{}.NewClient(token)
-	player, err := client.PlayerCurrentlyPlaying()
+	playlists, err := client.CurrentUsersPlaylists()
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	json.NewEncoder(w).Encode(player)
+	json.NewEncoder(w).Encode(playlists)
 }
 
 func main() {
 	r := mux.NewRouter()
-	r.HandleFunc("/player", userHandler).Methods("GET")
+	r.HandleFunc("/playlist", playlistHandler).Methods("GET")
 
 	corsWrapper := cors.New(cors.Options{
 		AllowedMethods: []string{"GET", "POST"},
