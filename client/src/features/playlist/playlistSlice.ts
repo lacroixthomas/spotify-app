@@ -68,13 +68,13 @@ export const playlistSlice = createSlice({
           return;
         }
         const playlist = action.payload.map((item: any) => {
-          return <PlaylistItem>{
+          return {
             image: item.image,
             name: item.name,
             ownerName: item.owner_name,
             ID: item.ID,
             URI: item.uri,
-          };
+          } as PlaylistItem;
         });
         state.playlists = playlist;
       })

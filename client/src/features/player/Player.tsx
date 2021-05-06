@@ -33,7 +33,7 @@ export function Player() {
       dispatch(setPlayer({}));
       clearInterval(intervalID);
     }
-  }, []);
+  }, [token, dispatch]);
 
   const togglePlayPause = (token: string) => {
     if (player.isPlaying) {
@@ -47,7 +47,7 @@ export function Player() {
 
   return (
     <div>
-      { player.status == 'failed' && <span>An error occured</span> }
+      { player.status === 'failed' && <span>An error occured</span> }
       <br />
       <span>{ player.isPlaying ? "Currently listening" : "No music playing"}</span>
       <br />

@@ -16,13 +16,13 @@ export function User() {
     } else {
       dispatch(setUser({}))
     }
-  }, []);
+  }, [token, dispatch]);
 
   return (
     <div>
-      { user.status == 'failed' && <span>An error occured</span> }
-      { user.status == 'loading' && <span>Loading</span>}
-      <img className={styles.profile} src={user.image}></img>
+      { user.status === 'failed' && <span>An error occured</span> }
+      { user.status === 'loading' && <span>Loading</span>}
+      <img alt="user" className={styles.profile} src={user.image}></img>
       <br />
       <span>{user.username}</span>
     </div>

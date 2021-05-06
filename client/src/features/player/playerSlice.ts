@@ -130,7 +130,7 @@ export const playerSlice = createSlice({
         state.id = action.payload.id;
         state.releaseDate = action.payload.release_date;
       })
-      .addCase(getPlayerAsync.rejected, (state, action) => {
+      .addCase(getPlayerAsync.rejected, (state, _) => {
         state.status = 'failed';
       });
   },
