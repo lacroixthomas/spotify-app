@@ -12,10 +12,11 @@ import (
 )
 
 type playlistItem struct {
-	Image     string     `json:"image"`
-	Name      string     `json:"name"`
-	OwnerName string     `json:"owner_name"`
-	ID        spotify.ID `json:"ID"`
+	Image     string      `json:"image"`
+	Name      string      `json:"name"`
+	OwnerName string      `json:"owner_name"`
+	ID        spotify.ID  `json:"ID"`
+	URI       spotify.URI `json:"uri"`
 }
 
 func reducePlaylist(playlistResp *spotify.SimplePlaylistPage) []playlistItem {
@@ -31,6 +32,7 @@ func reducePlaylist(playlistResp *spotify.SimplePlaylistPage) []playlistItem {
 			Name:      item.Name,
 			OwnerName: item.Owner.DisplayName,
 			ID:        item.ID,
+			URI:       item.URI,
 		})
 	}
 	return playlist

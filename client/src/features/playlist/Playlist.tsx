@@ -1,6 +1,6 @@
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { selectToken } from '../auth/authSlice';
-import { selectPlaylist, getPlaylistAsync, setPlaylist, PlaylistItem } from './playlistSlice';
+import { selectPlaylist, getPlaylistAsync, setPlaylist, PlaylistItem, startPlaylistAsync } from './playlistSlice';
 import styles from './Playlist.module.css';
 
 import { useEffect } from 'react';
@@ -18,12 +18,11 @@ export function Playlist() {
     }
   }, []);
 
-
   const items = playlist.playlists.map((item: PlaylistItem) => (
-    <div key={item.ID}>
-      <img className={styles.Image} src={item.image} ></img>
-      <span>{item.name}</span>
-      <span>{item.ownerName}</span>
+    <div className={styles.PlaylistItemContainer} key={item.ID}>
+      <img className={styles.Image} src={item.image} onClick={() => dispatch(startPlaylistAsync({ token, uri: item.URI }))} ></img>
+      <span className={styles.PlaylistItem} >{item.name}</span>
+      <span className={styles.PlaylistItem} >by {item.ownerName}</span>
     </div>
   ));
 

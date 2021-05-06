@@ -6,7 +6,8 @@ export interface PlaylistItem {
   image: string;
   name: string;
   ownerName: string;
-  ID: string
+  ID: string;
+  URI: string;
 }
 
 export interface PlaylistState {
@@ -28,6 +29,25 @@ export const getPlaylistAsync = createAsyncThunk(
   }
 );
 
+export const startPlaylistAsync = createAsyncThunk(
+  'playlist/startPlaylist',
+  async (params: { token: string, uri: string }) => {
+
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Authorization': params.token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ uri: params.uri })
+    };
+
+    const response = await fetch('http://127.0.0.1:8080/player/play', requestOptions);
+    const json = await response.json();
+    return json;
+  }
+);
+
 export const playlistSlice = createSlice({
   name: 'playlist',
   initialState,
@@ -44,12 +64,16 @@ export const playlistSlice = createSlice({
       })
       .addCase(getPlaylistAsync.fulfilled, (state, action) => {
         state.status = 'idle';
+        if (!action.payload) {
+          return;
+        }
         const playlist = action.payload.map((item: any) => {
           return <PlaylistItem>{
             image: item.image,
             name: item.name,
             ownerName: item.owner_name,
             ID: item.ID,
+            URI: item.uri,
           };
         });
         state.playlists = playlist;

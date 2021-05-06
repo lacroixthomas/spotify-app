@@ -9,6 +9,7 @@ export interface PlayerState {
   musicName: string
   artists: string[];
   id: string;
+  releaseDate: string;
 }
 
 const initialState: PlayerState = {
@@ -18,12 +19,89 @@ const initialState: PlayerState = {
   albumName: '',
   artists: [],
   id: '',
+  releaseDate: '',
 };
 
 export const getPlayerAsync = createAsyncThunk(
   'player/getPlayer',
   async (token: string) => {
     const response = await fetch('http://127.0.0.1:8080/player', { headers: { 'Authorization': token } })
+    const json = await response.json();
+    return json;
+  }
+);
+
+export const playAsync = createAsyncThunk(
+  'playlist/playAsync',
+  async (token: string) => {
+
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({})
+    };
+
+    const response = await fetch('http://127.0.0.1:8080/player/play', requestOptions);
+    const json = await response.json();
+    return json;
+  }
+);
+
+export const pauseAsync = createAsyncThunk(
+  'playlist/pauseAsync',
+  async (token: string) => {
+
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({})
+    };
+
+    const response = await fetch('http://127.0.0.1:8080/player/pause', requestOptions);
+    const json = await response.json();
+    return json;
+  }
+);
+
+export const nextAsync = createAsyncThunk(
+  'playlist/nextAsync',
+  async (token: string) => {
+
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({})
+    };
+
+    const response = await fetch('http://127.0.0.1:8080/player/next', requestOptions);
+    const json = await response.json();
+    return json;
+  }
+);
+
+export const prevAsync = createAsyncThunk(
+  'playlist/prevAsync',
+  async (token: string) => {
+
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({})
+    };
+
+    const response = await fetch('http://127.0.0.1:8080/player/prev', requestOptions);
     const json = await response.json();
     return json;
   }
@@ -50,6 +128,7 @@ export const playerSlice = createSlice({
         state.musicName = action.payload.music_name;
         state.isPlaying = action.payload.is_playing;
         state.id = action.payload.id;
+        state.releaseDate = action.payload.release_date;
       })
       .addCase(getPlayerAsync.rejected, (state, action) => {
         state.status = 'failed';
