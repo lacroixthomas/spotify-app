@@ -1,15 +1,20 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+	log "github.com/sirupsen/logrus"
 	"github.com/zmb3/spotify"
 	"golang.org/x/oauth2"
 )
+
+type key int
+
+var CLIENT_CONTEXT = key(1)
 
 type playlistItem struct {
 	Image     string      `json:"image"`
@@ -36,23 +41,31 @@ func reducePlaylist(playlistResp *spotify.SimplePlaylistPage) []playlistItem {
 		})
 	}
 	return playlist
-
 }
 
 func playlistHandler(w http.ResponseWriter, r *http.Request) {
-	bearer := r.Header.Get("Authorization")
-	token := new(oauth2.Token)
-	token.AccessToken = bearer
-	client := spotify.Authenticator{}.NewClient(token)
+	client := r.Context().Value(CLIENT_CONTEXT).(spotify.Client)
 	playlists, err := client.CurrentUsersPlaylists()
 	if err != nil {
-		log.Println(err)
+		log.WithError(err).Error("playlistHandler: could not get user playlists")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	reducedPlaylist := reducePlaylist(playlists)
-
 	json.NewEncoder(w).Encode(reducedPlaylist)
+}
+
+func tokenMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		bearer := r.Header.Get("Authorization")
+		token := new(oauth2.Token)
+		token.AccessToken = bearer
+		client := spotify.Authenticator{}.NewClient(token)
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, CLIENT_CONTEXT, client)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 func main() {
@@ -64,5 +77,6 @@ func main() {
 		AllowedHeaders: []string{"Content-Type", "Origin", "Accept", "*"},
 	})
 
-	log.Fatal(http.ListenAndServe(":8080", corsWrapper.Handler(r)))
+	contextedMux := tokenMiddleware(r)
+	log.Fatal(http.ListenAndServe(":8080", corsWrapper.Handler(contextedMux)))
 }

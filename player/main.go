@@ -1,16 +1,21 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
-	"log"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+	log "github.com/sirupsen/logrus"
 	"github.com/zmb3/spotify"
 	"golang.org/x/oauth2"
 )
+
+type key int
+
+var CLIENT_CONTEXT = key(1)
 
 type player struct {
 	IsPlaying   bool       `json:"is_playing"`
@@ -39,18 +44,15 @@ func reducePlayer(playerResp *spotify.CurrentlyPlaying) player {
 }
 
 func playerHandler(w http.ResponseWriter, r *http.Request) {
-	bearer := r.Header.Get("Authorization")
-	token := new(oauth2.Token)
-	token.AccessToken = bearer
-	client := spotify.Authenticator{}.NewClient(token)
+	client := r.Context().Value(CLIENT_CONTEXT).(spotify.Client)
 	player, err := client.PlayerCurrentlyPlaying()
 	if err != nil {
-		log.Println(err)
+		log.WithError(err).Error("playerHandler: could not get player currently playing")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	reducedPlayer := reducePlayer(player)
-
 	json.NewEncoder(w).Encode(reducedPlayer)
 }
 
@@ -61,58 +63,59 @@ type playInfoRequest struct {
 func playMusicHandler(w http.ResponseWriter, r *http.Request) {
 	var playInfo playInfoRequest
 	if err := json.NewDecoder(r.Body).Decode(&playInfo); err != nil {
-		log.Println(err)
+		log.WithError(err).Error("playMusicHandler: could not get decode play music request")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	bearer := r.Header.Get("Authorization")
-	token := new(oauth2.Token)
-	token.AccessToken = bearer
-	client := spotify.Authenticator{}.NewClient(token)
-
+	client := r.Context().Value(CLIENT_CONTEXT).(spotify.Client)
 	playOptions := spotify.PlayOptions{}
 	if len(playInfo.URI) > 0 {
 		playOptions.PlaybackContext = &playInfo.URI
 	}
 	if err := client.PlayOpt(&playOptions); err != nil {
-		log.Println(err)
+		log.WithError(err).Error("playMusicHandler: could not get play music")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
 
 func pauseMusicHandler(w http.ResponseWriter, r *http.Request) {
-	bearer := r.Header.Get("Authorization")
-	token := new(oauth2.Token)
-	token.AccessToken = bearer
-	client := spotify.Authenticator{}.NewClient(token)
-
+	client := r.Context().Value(CLIENT_CONTEXT).(spotify.Client)
 	if err := client.Pause(); err != nil {
-		log.Println(err)
+		log.WithError(err).Error("pauseMusicHandler: could not get pause music")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
 
 func nextMusicHandler(w http.ResponseWriter, r *http.Request) {
-	bearer := r.Header.Get("Authorization")
-	token := new(oauth2.Token)
-	token.AccessToken = bearer
-	client := spotify.Authenticator{}.NewClient(token)
-
+	client := r.Context().Value(CLIENT_CONTEXT).(spotify.Client)
 	if err := client.Next(); err != nil {
-		log.Println(err)
+		log.WithError(err).Error("nextMusicHandler: could not get play next music")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
 
 func prevMusicHandler(w http.ResponseWriter, r *http.Request) {
-	bearer := r.Header.Get("Authorization")
-	token := new(oauth2.Token)
-	token.AccessToken = bearer
-	client := spotify.Authenticator{}.NewClient(token)
-
+	client := r.Context().Value(CLIENT_CONTEXT).(spotify.Client)
 	if err := client.Previous(); err != nil {
-		log.Println(err)
+		log.WithError(err).Error("prevMusicHandler: could not get play previous music")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+}
+
+func tokenMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		bearer := r.Header.Get("Authorization")
+		token := new(oauth2.Token)
+		token.AccessToken = bearer
+		client := spotify.Authenticator{}.NewClient(token)
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, CLIENT_CONTEXT, client)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 func main() {
@@ -128,5 +131,6 @@ func main() {
 		AllowedHeaders: []string{"Content-Type", "Origin", "Accept", "*"},
 	})
 
-	log.Fatal(http.ListenAndServe(":8080", corsWrapper.Handler(r)))
+	contextedMux := tokenMiddleware(r)
+	log.Fatal(http.ListenAndServe(":8080", corsWrapper.Handler(contextedMux)))
 }
