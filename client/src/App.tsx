@@ -12,11 +12,34 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+      <div className="Left-panel">
+        <div className="Login-container">
+
+        TODO: To User Component -
+        <br/>
+        Image
+        <br/>
+        Username
+        <br />
         <Auth />
-        {token && <Player/>}
-      </header>
+        </div>
+        <div className="Player-container">
+          Player:
+
+          Currently Playing ?
+
+          Which music
+          Which artist
+          Which kind
+
+          {token && <Player/>}          
+        </div>
+      </div>
+      <div className="Playlist">
+        Playlist:
+
+        Listing of playlists from the user
+      </div>
     </div>
   );
 }

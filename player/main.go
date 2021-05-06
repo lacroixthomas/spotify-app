@@ -28,6 +28,10 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/player", userHandler).Methods("GET")
 
-	handler := cors.Default().Handler(r)
-	log.Fatal(http.ListenAndServe(":8080", handler))
+	corsWrapper := cors.New(cors.Options{
+		AllowedMethods: []string{"GET", "POST"},
+		AllowedHeaders: []string{"Content-Type", "Origin", "Accept", "*"},
+	})
+
+	log.Fatal(http.ListenAndServe(":8080", corsWrapper.Handler(r)))
 }
