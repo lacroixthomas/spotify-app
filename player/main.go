@@ -11,6 +11,30 @@ import (
 	"golang.org/x/oauth2"
 )
 
+type player struct {
+	IsPlaying   bool       `json:"is_playing"`
+	AlbumName   string     `json:"album_name"`
+	ArtistsName []string   `json:"artists_name"`
+	MusicName   string     `json:"music_name"`
+	ID          spotify.ID `json:"ID"`
+}
+
+func reducePlayer(playerResp *spotify.CurrentlyPlaying) player {
+	var artists []string
+
+	for _, p := range playerResp.Item.Artists {
+		artists = append(artists, p.Name)
+	}
+
+	return player{
+		IsPlaying:   playerResp.Playing,
+		AlbumName:   playerResp.Item.Album.Name,
+		ArtistsName: artists,
+		MusicName:   playerResp.Item.Name,
+		ID:          playerResp.Item.ID,
+	}
+}
+
 func userHandler(w http.ResponseWriter, r *http.Request) {
 	bearer := r.Header.Get("Authorization")
 	token := new(oauth2.Token)
@@ -22,7 +46,9 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(player)
+	reducedPlayer := reducePlayer(player)
+
+	json.NewEncoder(w).Encode(reducedPlayer)
 }
 
 func main() {

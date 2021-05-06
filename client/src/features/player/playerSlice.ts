@@ -8,6 +8,7 @@ export interface PlayerState {
   albumName: string;
   musicName: string
   artists: string[];
+  id: string;
 }
 
 const initialState: PlayerState = {
@@ -16,6 +17,7 @@ const initialState: PlayerState = {
   musicName: '',
   albumName: '',
   artists: [],
+  id: '',
 };
 
 export const getPlayerAsync = createAsyncThunk(
@@ -43,10 +45,11 @@ export const playerSlice = createSlice({
       })
       .addCase(getPlayerAsync.fulfilled, (state, action) => {
         state.status = 'idle';
-        state.albumName = action.payload.item.album.name;
-        state.artists = action.payload.item.artists;
-        state.musicName = action.payload.item.name;
+        state.albumName = action.payload.album_name;
+        state.artists = action.payload.artists_name || [];
+        state.musicName = action.payload.music_name;
         state.isPlaying = action.payload.is_playing;
+        state.id = action.payload.id;
       })
       .addCase(getPlayerAsync.rejected, (state, action) => {
         state.status = 'failed';

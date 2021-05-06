@@ -11,6 +11,32 @@ import (
 	"golang.org/x/oauth2"
 )
 
+type playlistItem struct {
+	Image     string     `json:"image"`
+	Name      string     `json:"name"`
+	OwnerName string     `json:"owner_name"`
+	ID        spotify.ID `json:"ID"`
+}
+
+func reducePlaylist(playlistResp *spotify.SimplePlaylistPage) []playlistItem {
+	var playlist []playlistItem
+
+	for _, item := range playlistResp.Playlists {
+		var image string
+		if len(item.Images) > 0 {
+			image = item.Images[0].URL
+		}
+		playlist = append(playlist, playlistItem{
+			Image:     image,
+			Name:      item.Name,
+			OwnerName: item.Owner.DisplayName,
+			ID:        item.ID,
+		})
+	}
+	return playlist
+
+}
+
 func playlistHandler(w http.ResponseWriter, r *http.Request) {
 	bearer := r.Header.Get("Authorization")
 	token := new(oauth2.Token)
@@ -22,7 +48,9 @@ func playlistHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(playlists)
+	reducedPlaylist := reducePlaylist(playlists)
+
+	json.NewEncoder(w).Encode(reducedPlaylist)
 }
 
 func main() {

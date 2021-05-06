@@ -2,12 +2,21 @@ import { RootState } from '../../app/store';
 
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export interface PlaylistItem {
+  image: string;
+  name: string;
+  ownerName: string;
+  ID: string
+}
+
 export interface PlaylistState {
   status: 'idle' | 'loading' | 'failed';
+  playlists: PlaylistItem[];
 }
 
 const initialState: PlaylistState = {
   status: 'idle',
+  playlists: [],
 };
 
 export const getPlaylistAsync = createAsyncThunk(
@@ -24,8 +33,8 @@ export const playlistSlice = createSlice({
   initialState,
   reducers: {
     setPlaylist: (state, action: PayloadAction<object>) => ({
-        ...state,
-        ...action.payload,
+      ...state,
+      ...action.payload,
     }),
   },
   extraReducers: (builder) => {
@@ -35,7 +44,15 @@ export const playlistSlice = createSlice({
       })
       .addCase(getPlaylistAsync.fulfilled, (state, action) => {
         state.status = 'idle';
-        console.log(action.payload)
+        const playlist = action.payload.map((item: any) => {
+          return <PlaylistItem>{
+            image: item.image,
+            name: item.name,
+            ownerName: item.owner_name,
+            ID: item.ID,
+          };
+        });
+        state.playlists = playlist;
       })
       .addCase(getPlaylistAsync.rejected, (state, action) => {
         state.status = 'failed';

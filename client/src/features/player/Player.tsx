@@ -29,7 +29,7 @@ export function Player() {
       <br />
       {player.musicName}
       <br />
-      {player.artists.map((a:any) => a.name)}
+      {player.artists.map((a, ind) => (<span key={ind}>{a}<br /></span>))}
       <br />
     </div>
   );
