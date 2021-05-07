@@ -96,6 +96,8 @@ func Test_reducePlayer(t *testing.T) {
 				MusicName:   "test",
 				ID:          "id",
 				ReleaseDate: getTimeFromString("2020-12-15"),
+				Duration:    0,
+				Progress:    0,
 			},
 		},
 	}
@@ -145,7 +147,7 @@ func Test_playerHandler(t *testing.T) {
 				}, false),
 			},
 			expectedCode: http.StatusOK,
-			expectedBody: `{"is_playing":true,"album_name":"album","artists_name":["artist name","thomas"],"music_name":"test","ID":"id","release_date":"2020-12-15T00:00:00Z"}`,
+			expectedBody: `{"is_playing":true,"album_name":"album","artists_name":["artist name","thomas"],"music_name":"test","ID":"id","release_date":"2020-12-15T00:00:00Z","progress":0,"duration":0}`,
 		},
 		{
 			name: "should error on spotify api call",

@@ -74,10 +74,10 @@ export function Auth() {
   return (
     <div>
         { !token &&
-          <a href={`${endpoint}?client_id=${client_id}&scope=${encodeURIComponent(scopes.join(' '))}&response_type=token&redirect_uri=${uri}`}>Login</a>
+          <a className={styles.loginButton} href={`${endpoint}?client_id=${client_id}&scope=${encodeURIComponent(scopes.join(' '))}&response_type=token&redirect_uri=${uri}`}>Login</a>
         }
         { token &&
-          <button onClick={logOut}>Log out</button>
+          <a className={styles.loginButton} href="" onClick={logOut}>Log out</a>
         }
     </div>
   );

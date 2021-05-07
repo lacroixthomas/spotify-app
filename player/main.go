@@ -36,6 +36,8 @@ type player struct {
 	MusicName   string     `json:"music_name"`
 	ID          spotify.ID `json:"ID"`
 	ReleaseDate time.Time  `json:"release_date"`
+	Progress    int        `json:"progress"`
+	Duration    int        `json:"duration"`
 }
 
 // reducePlayer will reduce the spotify player to a simplified one
@@ -53,6 +55,8 @@ func reducePlayer(playerResp *spotify.CurrentlyPlaying) player {
 		MusicName:   playerResp.Item.Name,
 		ID:          playerResp.Item.ID,
 		ReleaseDate: playerResp.Item.Album.ReleaseDateTime(),
+		Progress:    playerResp.Progress,
+		Duration:    playerResp.Item.Duration,
 	}
 }
 

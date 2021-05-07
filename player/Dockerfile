@@ -5,6 +5,7 @@ COPY main.go .
 COPY go.mod .
 COPY go.sum .
 RUN go mod download
+RUN go test -v
 RUN go build main.go
 EXPOSE 8080
 ENTRYPOINT [ "/player/main" ]

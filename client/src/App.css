@@ -16,14 +16,16 @@ html, body, #root {
   flex-direction: column;
   flex-grow: 1;
   min-width: 300px;
+  background: linear-gradient(12deg, black, #212121b3);
 }
 
 .Playlist {
   flex-grow: 3;
+  background: linear-gradient(45deg, black, transparent);
 }
 
 .Login-container {
-  height: 200px;
+  height: 300px;
 }
 
 .Player-container {
@@ -31,7 +33,8 @@ html, body, #root {
 }
 
 .App-logo {
-  height: 40vmin;
+  height: 100px;
+  margin-bottom: 20px;
   pointer-events: none;
 }
 
@@ -51,4 +54,8 @@ html, body, #root {
   100% {
     transform: translateY(0px);
   }
+}
+
+.User-container {
+  padding: 30px 0px;
 }

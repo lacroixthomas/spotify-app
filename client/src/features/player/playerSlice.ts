@@ -10,6 +10,8 @@ export interface PlayerState {
   artists: string[];
   id: string;
   releaseDate: string;
+  progress: number;
+  duration: number;
 }
 
 const initialState: PlayerState = {
@@ -20,6 +22,8 @@ const initialState: PlayerState = {
   artists: [],
   id: '',
   releaseDate: '',
+  progress: 0,
+  duration: 0,
 };
 
 export const getPlayerAsync = createAsyncThunk(
@@ -129,6 +133,8 @@ export const playerSlice = createSlice({
         state.isPlaying = action.payload.is_playing;
         state.id = action.payload.id;
         state.releaseDate = action.payload.release_date;
+        state.progress = action.payload.progress;
+        state.duration = action.payload.duration;
       })
       .addCase(getPlayerAsync.rejected, (state, _) => {
         state.status = 'failed';

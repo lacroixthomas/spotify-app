@@ -1,4 +1,9 @@
 .profile {
     max-width: 60px;
     max-height: 60px;
+    border-radius: 25px;
+}
+
+.username {
+    color: white;
 }

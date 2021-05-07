@@ -23,8 +23,7 @@ export function User() {
       { user.status === 'failed' && <span>An error occured</span> }
       { user.status === 'loading' && <span>Loading</span>}
       <img alt="user" className={styles.profile} src={user.image}></img>
-      <br />
-      <span>{user.username}</span>
+      <p className={styles.username} >{user.username}</p>
     </div>
   );
 }

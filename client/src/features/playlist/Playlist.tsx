@@ -20,7 +20,7 @@ export function Playlist() {
 
   const items = playlist.playlists.map((item: PlaylistItem) => (
     <div className={styles.PlaylistItemContainer} key={item.ID}>
-      <img alt="album" className={styles.Image} src={item.image} onClick={() => dispatch(startPlaylistAsync({ token, uri: item.URI }))} ></img>
+      <img alt="play" className={styles.Image} src={item.image} onClick={() => dispatch(startPlaylistAsync({ token, uri: item.URI }))} ></img>
       <span className={styles.PlaylistItem} >{item.name}</span>
       <span className={styles.PlaylistItem} >by {item.ownerName}</span>
     </div>

@@ -10,6 +10,10 @@ import {
   nextAsync,
   } from './playerSlice';
 import styles from './Player.module.css';
+import ProgressBar from 'react-customizable-progressbar'
+import playButtonPNG from './play-button.png';
+import pauseButtonPNG from './pause-button.png';
+import nextButtonPNG from './next-button.png';
 
 import { useEffect } from 'react';
 
@@ -24,7 +28,7 @@ export function Player() {
   useEffect(() => {
     if (!!token) {
       dispatch(getPlayerAsync(token));
-      intervalID = (Number)(setInterval(() => dispatch(getPlayerAsync(token)), 5000));
+      intervalID = (Number)(setInterval(() => dispatch(getPlayerAsync(token)), 1000));
     } else {
       dispatch(setPlayer({}));
       clearInterval(intervalID);
@@ -48,23 +52,27 @@ export function Player() {
   return (
     <div>
       { player.status === 'failed' && <span>An error occured</span> }
-      <br />
-      <span>{ player.isPlaying ? "Currently listening" : "No music playing"}</span>
-      <br />
-      {player.albumName}
-      <br />
-      {player.musicName}
-      <br />
-      Release date: {new Date(Date.parse(player.releaseDate)).toDateString()}
-      <br />
-      {player.artists.map((a, ind) => (<span key={ind}>{a}<br /></span>))}
-      <br />
+      <div className={styles.musicInfo} >
+        <p>{ player.isPlaying ? "Currently listening to:" : "No music playing"}</p>
+        <p>Album: {player.albumName}</p>
+        <p>Name: {player.musicName}</p>
+        <p>Release date: {new Date(Date.parse(player.releaseDate)).toDateString()}</p>
+        <p>Artists: {player.artists.map((a, ind) => (<span key={ind}>{a}<br /></span>))}</p>
+      </div>
+      <div className={styles.playerActionContainer}>
+        <img className={styles.prevButton} onClick={() => dispatch(prevAsync(token))} src={nextButtonPNG}/>
+        <ProgressBar
+            className={styles.progressBar}
+            progress={player.progress}
+            radius={30}
+            steps={player.duration}
+            strokeColor="#1db954"
+        >
+          <img onClick={() => togglePlayPause(token)} className={styles.playButton} src={player.isPlaying ? pauseButtonPNG : playButtonPNG} />
+        </ProgressBar>
 
-      ADD IMAGE OF CURRENT MUSIC
-
-      <button onClick={() => dispatch(prevAsync(token))}>Previous</button>
-      <button onClick={() => togglePlayPause(token)}>{player.isPlaying ? "Pause" : "Play"}</button>
-      <button onClick={() => dispatch(nextAsync(token))}>Next</button>
+        <img className={styles.nextButton} onClick={() => dispatch(nextAsync(token))} src={nextButtonPNG}/>
+      </div>
     </div>
   );
 }

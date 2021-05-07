@@ -41,6 +41,8 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: Send critical info to other microservice to keep track of country / product / date of birth
+
 	var image string
 	if len(user.Images) > 0 {
 		image = user.Images[0].URL

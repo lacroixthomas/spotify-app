@@ -2,3 +2,43 @@
     max-width: 60px;
     max-height: 60px;
 }
+
+.playButton {
+    position: absolute;
+    top: 29%;
+    left: 30%;
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    background-color: white;
+}
+
+.progressBar {
+    display: block;
+}
+
+.prevButton {
+    transform: rotate(180deg);
+    width: 40px;
+    height: 40px;
+}
+
+.nextButton {
+    width: 40px;
+    height: 40px;
+}
+
+.playerActionContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content : center;
+}
+
+.prevButton:hover, .nextButton:hover, .playButton:hover {
+    cursor: pointer;
+}
+
+.musicInfo {
+    color: white;
+}

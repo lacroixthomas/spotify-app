@@ -16,8 +16,13 @@ function App() {
     <div className="App">
       <div className="Left-panel">
         <div className="Login-container">
-        {!! token && <User /> }
-        <Auth />
+          <div>
+            <img src={logo} className="App-logo" alt="logo" />
+            <Auth />
+          </div>
+          <div className="User-container" >
+            {!! token && <User /> }
+          </div>
         </div>
         <div className="Player-container">
           {token && <Player/>}
