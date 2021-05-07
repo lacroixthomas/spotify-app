@@ -17,6 +17,15 @@ type key int
 
 var CLIENT_CONTEXT = key(1)
 
+// spotifyClient interface of spotify client
+type spotifyClient interface {
+	PlayerCurrentlyPlaying() (*spotify.CurrentlyPlaying, error)
+	PlayOpt(opt *spotify.PlayOptions) error
+	Pause() error
+	Next() error
+	Previous() error
+}
+
 type player struct {
 	IsPlaying   bool       `json:"is_playing"`
 	AlbumName   string     `json:"album_name"`
@@ -44,7 +53,7 @@ func reducePlayer(playerResp *spotify.CurrentlyPlaying) player {
 }
 
 func playerHandler(w http.ResponseWriter, r *http.Request) {
-	client := r.Context().Value(CLIENT_CONTEXT).(spotify.Client)
+	client := r.Context().Value(CLIENT_CONTEXT).(spotifyClient)
 	player, err := client.PlayerCurrentlyPlaying()
 	if err != nil {
 		log.WithError(err).Error("playerHandler: could not get player currently playing")
@@ -67,7 +76,7 @@ func playMusicHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	client := r.Context().Value(CLIENT_CONTEXT).(spotify.Client)
+	client := r.Context().Value(CLIENT_CONTEXT).(spotifyClient)
 	playOptions := spotify.PlayOptions{}
 	if len(playInfo.URI) > 0 {
 		playOptions.PlaybackContext = &playInfo.URI
@@ -80,7 +89,7 @@ func playMusicHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func pauseMusicHandler(w http.ResponseWriter, r *http.Request) {
-	client := r.Context().Value(CLIENT_CONTEXT).(spotify.Client)
+	client := r.Context().Value(CLIENT_CONTEXT).(spotifyClient)
 	if err := client.Pause(); err != nil {
 		log.WithError(err).Error("pauseMusicHandler: could not get pause music")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -89,7 +98,7 @@ func pauseMusicHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func nextMusicHandler(w http.ResponseWriter, r *http.Request) {
-	client := r.Context().Value(CLIENT_CONTEXT).(spotify.Client)
+	client := r.Context().Value(CLIENT_CONTEXT).(spotifyClient)
 	if err := client.Next(); err != nil {
 		log.WithError(err).Error("nextMusicHandler: could not get play next music")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -98,7 +107,7 @@ func nextMusicHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func prevMusicHandler(w http.ResponseWriter, r *http.Request) {
-	client := r.Context().Value(CLIENT_CONTEXT).(spotify.Client)
+	client := r.Context().Value(CLIENT_CONTEXT).(spotifyClient)
 	if err := client.Previous(); err != nil {
 		log.WithError(err).Error("prevMusicHandler: could not get play previous music")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -113,7 +122,7 @@ func tokenMiddleware(next http.Handler) http.Handler {
 		token.AccessToken = bearer
 		client := spotify.Authenticator{}.NewClient(token)
 		ctx := r.Context()
-		ctx = context.WithValue(ctx, CLIENT_CONTEXT, client)
+		ctx = context.WithValue(ctx, CLIENT_CONTEXT, &client)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

@@ -16,6 +16,11 @@ type key int
 
 var CLIENT_CONTEXT = key(1)
 
+// spotifyClient interface of spotify client
+type spotifyClient interface {
+	CurrentUsersPlaylists() (*spotify.SimplePlaylistPage, error)
+}
+
 type playlistItem struct {
 	Image     string      `json:"image"`
 	Name      string      `json:"name"`
@@ -25,7 +30,7 @@ type playlistItem struct {
 }
 
 func reducePlaylist(playlistResp *spotify.SimplePlaylistPage) []playlistItem {
-	var playlist []playlistItem
+	playlist := []playlistItem{}
 
 	for _, item := range playlistResp.Playlists {
 		var image string
@@ -44,7 +49,7 @@ func reducePlaylist(playlistResp *spotify.SimplePlaylistPage) []playlistItem {
 }
 
 func playlistHandler(w http.ResponseWriter, r *http.Request) {
-	client := r.Context().Value(CLIENT_CONTEXT).(spotify.Client)
+	client := r.Context().Value(CLIENT_CONTEXT).(spotifyClient)
 	playlists, err := client.CurrentUsersPlaylists()
 	if err != nil {
 		log.WithError(err).Error("playlistHandler: could not get user playlists")
@@ -63,7 +68,7 @@ func tokenMiddleware(next http.Handler) http.Handler {
 		token.AccessToken = bearer
 		client := spotify.Authenticator{}.NewClient(token)
 		ctx := r.Context()
-		ctx = context.WithValue(ctx, CLIENT_CONTEXT, client)
+		ctx = context.WithValue(ctx, CLIENT_CONTEXT, &client)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

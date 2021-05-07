@@ -87,7 +87,7 @@ func tokenMiddleware(next http.Handler) http.Handler {
 		token.AccessToken = bearer
 		client := spotify.Authenticator{}.NewClient(token)
 		ctx := r.Context()
-		ctx = context.WithValue(ctx, CLIENT_CONTEXT, client)
+		ctx = context.WithValue(ctx, CLIENT_CONTEXT, &client)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
