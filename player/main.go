@@ -13,8 +13,10 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// Key type of spotify client context
 type key int
 
+// CLIENT_CONTEXT is the key used for the spotify client context
 var CLIENT_CONTEXT = key(1)
 
 // spotifyClient interface of spotify client
@@ -26,6 +28,7 @@ type spotifyClient interface {
 	Previous() error
 }
 
+// player is a simplified structure of a player
 type player struct {
 	IsPlaying   bool       `json:"is_playing"`
 	AlbumName   string     `json:"album_name"`
@@ -35,6 +38,7 @@ type player struct {
 	ReleaseDate time.Time  `json:"release_date"`
 }
 
+// reducePlayer will reduce the spotify player to a simplified one
 func reducePlayer(playerResp *spotify.CurrentlyPlaying) player {
 	var artists []string
 
@@ -52,6 +56,7 @@ func reducePlayer(playerResp *spotify.CurrentlyPlaying) player {
 	}
 }
 
+// playerHandler is the handler to get the current player
 func playerHandler(w http.ResponseWriter, r *http.Request) {
 	client := r.Context().Value(CLIENT_CONTEXT).(spotifyClient)
 	player, err := client.PlayerCurrentlyPlaying()
@@ -65,10 +70,14 @@ func playerHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(reducedPlayer)
 }
 
+// playInfoRequest is the request structure to play a music (optional to give a specific uri)
+// By default it will play le current music if any
 type playInfoRequest struct {
 	URI spotify.URI `json:"uri"`
 }
 
+// playMusicHandler is the handler to play a music
+// It either just play a paused music or you can send a URI to play a specific one
 func playMusicHandler(w http.ResponseWriter, r *http.Request) {
 	var playInfo playInfoRequest
 	if err := json.NewDecoder(r.Body).Decode(&playInfo); err != nil {
@@ -88,6 +97,7 @@ func playMusicHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// pauseMusicHandler is the handler to pause the music
 func pauseMusicHandler(w http.ResponseWriter, r *http.Request) {
 	client := r.Context().Value(CLIENT_CONTEXT).(spotifyClient)
 	if err := client.Pause(); err != nil {
@@ -97,6 +107,7 @@ func pauseMusicHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// nextMusicHandler is the handler to go to the next music
 func nextMusicHandler(w http.ResponseWriter, r *http.Request) {
 	client := r.Context().Value(CLIENT_CONTEXT).(spotifyClient)
 	if err := client.Next(); err != nil {
@@ -106,6 +117,7 @@ func nextMusicHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// prevMusicHandler is the handler to go to the previous music
 func prevMusicHandler(w http.ResponseWriter, r *http.Request) {
 	client := r.Context().Value(CLIENT_CONTEXT).(spotifyClient)
 	if err := client.Previous(); err != nil {
@@ -115,6 +127,7 @@ func prevMusicHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// tokenMiddleware will retrieve the token from the header and add the spotify client in the request context
 func tokenMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		bearer := r.Header.Get("Authorization")
